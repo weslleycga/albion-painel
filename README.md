@@ -6,6 +6,8 @@
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![Deploy na Vercel](https://img.shields.io/badge/deploy-Vercel-000000?logo=vercel&logoColor=white)
 
+### 🌐 Deploy: **[albion-painel.vercel.app](https://albion-painel.vercel.app/)**
+
 Painel web que ajuda jogadores de **Albion Online** a descobrir quais itens vale a pena comprar ou craftar em **Caerleon** e vender no **Black Market**. Ele usa preços reais enviados pela comunidade.
 
 ## 🔗 Acesse
