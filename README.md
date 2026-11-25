@@ -1,209 +1,247 @@
 # ⚒️ Albion Painel – Craft para o Black Market
 
-Projeto final do curso de React. É um painel para descobrir quais itens do **Albion Online** vale a pena craftar em Caerleon e vender no **Black Market**. Ele usa preços reais da API pública do [Albion Online Data Project](https://www.albion-online-data.com/).
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Deploy na Vercel](https://img.shields.io/badge/deploy-Vercel-000000?logo=vercel&logoColor=white)
 
-> **Status:** entrega parcial, com o esqueleto do app. Navegação, consulta de preços e tema claro/escuro já funcionam. O cálculo de lucro com o custo dos materiais vem nas próximas entregas.
+Painel web que ajuda jogadores de **Albion Online** a descobrir quais itens vale a pena comprar ou craftar em **Caerleon** e vender no **Black Market**. Ele usa preços reais enviados pela comunidade.
 
-## Como executar
+## 🔗 Acesse
+
+| | Link |
+|---|---|
+| 🌐 **Aplicação online** | **https://albion-painel.vercel.app** |
+| 💻 Código-fonte | https://github.com/weslleycga/albion-painel |
+
+> Teste um link direto, como **https://albion-painel.vercel.app/itens/T6_BAG**: a página abre sem erro 404, graças ao SPA fallback (veja a seção [Deploy](#-deploy)).
+
+---
+
+## 📸 Telas
+
+### Desktop
+
+![Tela inicial no desktop](./docs/prints/desktop-inicio.png)
+
+![Consulta de preços no desktop](./docs/prints/desktop-consulta.png)
+
+### Mobile
+
+<p>
+  <img src="./docs/prints/mobile-inicio.png" alt="Tela inicial no celular" width="260" />
+  &nbsp;&nbsp;
+  <img src="./docs/prints/mobile-menu.png" alt="Menu aberto no celular" width="260" />
+  &nbsp;&nbsp;
+  <img src="./docs/prints/mobile-item.png" alt="Detalhes de um item no celular" width="260" />
+</p>
+
+---
+
+## 🎯 O problema e a solução
+
+No Albion Online, o **Black Market** de Caerleon compra itens dos jogadores para abastecer os baús do jogo. Os preços mudam o dia todo, e descobrir se vale a pena vender um item lá exige comparar dezenas de valores à mão, item por item e tier por tier.
+
+O **Albion Painel** faz essa comparação automaticamente:
+
+- **Consulta de preços:** escolha um item e veja de uma vez, do T4 ao T8, quanto ele custa em Caerleon e quanto o Black Market paga. A diferença aparece em verde (lucro) ou vermelho (prejuízo).
+- **Catálogo de itens:** navegue pelos itens acompanhados, filtrando por categoria (armas, armaduras, acessórios) e por tier.
+- **Detalhes do item:** página própria para cada item (`/itens/T6_BAG`), com os preços das duas cidades e há quanto tempo cada preço foi registrado.
+- **Três servidores:** Américas, Europa e Ásia.
+- **Tema claro e escuro:** a escolha fica salva no navegador e, na primeira visita, segue a preferência do sistema.
+- **Responsivo:** menu ☰ no celular e tabelas que rolam para o lado em telas pequenas.
+- **Feedback em todas as etapas:** spinner ao carregar, mensagens de erro com "Tentar novamente", aviso de "muitas consultas seguidas" (erro 429) e página 404.
+
+## 🛠️ Tecnologias
+
+| Tecnologia | Para quê |
+|---|---|
+| [React 19](https://react.dev/) | Interface em componentes |
+| [React Router 7](https://reactrouter.com/) | Navegação entre páginas sem recarregar (SPA), rota dinâmica `/itens/:id` |
+| [Tailwind CSS 3](https://v3.tailwindcss.com/) | Estilos, responsividade (`sm:`, `md:`, `lg:`) e tema escuro (`dark:`) |
+| Context API | Tema claro/escuro global, sem passar props |
+| [Vite 8](https://vite.dev/) | Servidor de desenvolvimento e build de produção |
+| [ESLint](https://eslint.org/) | Análise do código (regras de hooks e de Fast Refresh) |
+| [clsx](https://github.com/lukeed/clsx) | Montagem condicional de classes CSS |
+| [Albion Online Data Project](https://www.albion-online-data.com/) | API pública de preços (sem chave) |
+| [Vercel](https://vercel.com/) | Hospedagem e deploy automático a cada `git push` |
+
+## 💻 Como rodar localmente
+
+**Pré-requisitos:** [Node.js](https://nodejs.org/) 20 ou mais recente e Git.
 
 ```bash
+# 1. Clonar o repositório
+git clone https://github.com/weslleycga/albion-painel.git
+cd albion-painel
+
+# 2. Instalar as dependências
 npm install
+
+# 3. Rodar em modo de desenvolvimento
 npm run dev
 ```
 
-Abra no navegador o endereço que aparecer no terminal (normalmente `http://localhost:5173`).
+Abra o endereço que aparecer no terminal (normalmente `http://localhost:5173`).
 
----
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento com atualização automática |
+| `npm run lint` | Verifica o código com o ESLint |
+| `npm run build` | Gera a versão de produção na pasta `dist/` |
+| `npm run preview` | Abre a versão de produção localmente, para testar antes do deploy |
 
-## Parte 1 – Planejamento e estrutura de pastas
+Não é preciso nenhuma chave de API nem arquivo `.env`.
 
-### Escopo do projeto
-
-**Problema:** no Albion Online, o Black Market de Caerleon compra itens dos jogadores. Para saber se um craft dá lucro, é preciso comparar à mão:
-- o preço dos materiais no mercado;
-- o valor que o Black Market paga pelo item pronto;
-- as taxas do mercado.
-
-Isso leva muito tempo e muda o dia todo.
-
-**Solução:** um painel web que busca os preços atualizados na API e mostra quais itens compensam.
-
-**Público:** jogador sem premium que joga em cidades seguras e quer ganhar prata com craft. A meta é **10 milhões de prata por dia**.
-
-| Funcionalidade | Prioridade | Entrega |
-|---|---|---|
-| Navegação entre páginas (Início, Itens, Consulta, Sobre) | Essencial | ✅ Esta |
-| Consulta de preços em Caerleon e no Black Market | Essencial | ✅ Esta |
-| Detalhes de um item com rota dinâmica (`/itens/:id`) | Essencial | ✅ Esta |
-| Tema claro/escuro salvo no navegador | Essencial | ✅ Esta |
-| Receitas de craft (materiais de cada item) | Essencial | ⏳ Próxima |
-| Cálculo de lucro (BM − materiais − taxas) | Essencial | ⏳ Próxima |
-| Ranking dos itens mais lucrativos | Importante | ⏳ Próxima |
-| Painel da meta diária | Desejável | ⏳ Final |
-| Deploy na Vercel | Essencial | ⏳ Final |
-
-### Estrutura de pastas
+## 📁 Estrutura do projeto
 
 ```
 src/
-├── components/        ← peças visuais REUTILIZÁVEIS (não sabem de qual página fazem parte)
-│   ├── Button/            botão base (primário, secundário, contorno, perigo; vira Link com "para")
-│   ├── Card/              caixa base com título, subtítulo e ações
-│   ├── Layout/            Header + <Outlet /> + Footer
-│   ├── Header/            menu com NavLink + botão de tema
-│   ├── Footer/
-│   ├── Spinner/           estado de carregando
-│   ├── Alerta/            mensagens de erro, informação e sucesso
-│   ├── ItemIcone/         imagem oficial do item
-│   └── CardPreco/         preços de um item em uma cidade
-├── pages/             ← uma pasta por ROTA: juntam os componentes e os dados
-│   ├── Inicio/            /
-│   ├── Itens/             /itens
-│   ├── ItemDetalhe/       /itens/:id
-│   ├── Consulta/          /consulta
-│   ├── Sobre/             /sobre
-│   └── NaoEncontrado/     qualquer outra URL (404)
-├── services/          ← comunicação com o mundo de fora (APIs)
-│   ├── api.js             fetchJSON genérico: response.ok + erros de rede
-│   └── albion.js          funções específicas da API do Albion Data
-├── contexts/          ← estados GLOBAIS (Context API)
-│   └── ThemeContext.jsx   tema claro/escuro + localStorage
-├── hooks/             ← hooks personalizados (lógica reutilizável)
-│   ├── useTema.js         lê o ThemeContext
-│   └── usePrecos.js       busca preços com loading/erro prontos
-├── data/
-│   └── itens.js           lista de itens acompanhados e tiers
-├── utils/
-│   └── formatar.js        formatação de prata, diferença e "há 2 h"
-├── App.jsx            ← definição das rotas
-├── main.jsx           ← BrowserRouter + ThemeProvider
-└── index.css          ← Tailwind
+├── components/        peças visuais reutilizáveis (Button, Card, Header, Footer, Spinner, Alerta...)
+├── pages/             uma pasta por rota (Inicio, Itens, ItemDetalhe, Consulta, Sobre, NaoEncontrado)
+├── services/          comunicação com a API
+│   ├── api.js             fetch genérico: trata erro de rede e response.ok
+│   └── albion.js          URLs e formato de dados do Albion Data Project
+├── contexts/          estado global
+│   ├── ThemeContext.jsx   o contexto do tema (só o createContext)
+│   └── ThemeProvider.jsx  guarda o tema e sincroniza com <html> e localStorage
+├── hooks/             lógica reutilizável (useTema, usePrecos)
+├── data/              lista de itens acompanhados e tiers
+├── utils/             formatação de prata, diferença e "há 2 h"
+├── App.jsx            definição das rotas
+└── main.jsx           BrowserRouter + ThemeProvider
 ```
 
 ---
 
-## Parte 2 – Esqueleto do app
+## ✅ Parte 1 – Build de produção e ESLint
 
-### React Router com Layout
+Antes do deploy, rodei o build e o ESLint localmente:
 
-```jsx
-<Routes>
-  <Route path="/" element={<Layout />}>       {/* Header + Outlet + Footer */}
-    <Route index element={<Inicio />} />
-    <Route path="itens" element={<Itens />} />
-    <Route path="itens/:id" element={<ItemDetalhe />} />
-    <Route path="consulta" element={<Consulta />} />
-    <Route path="sobre" element={<Sobre />} />
-    <Route path="*" element={<NaoEncontrado />} />
-  </Route>
-</Routes>
+```bash
+npm run lint    # ✖ 1 problema encontrado → corrigido → 0 problemas
+npm run build   # ✓ build sem erros nem avisos
 ```
 
-- **4 páginas no menu** (Início, Itens, Consulta, Sobre), mais a página de detalhes e a 404.
-- O **Header** é fixo no topo e responsivo, com menu ☰ no celular. O `NavLink` destaca a página atual em dourado.
+**Problema encontrado pelo ESLint:**
 
-### Serviço de API
+```
+src/contexts/ThemeContext.jsx
+  error  Fast refresh only works when a file only exports components.
+         Move your React context(s) to a separate file  react-refresh/only-export-components
+```
 
-O `services/api.js` tem uma função **genérica** de fetch, usada pelo projeto inteiro. Ela já trata os dois tipos de erro:
+O arquivo exportava o **contexto** (`createContext`) e o **componente** `ThemeProvider` juntos. Isso quebra o *Fast Refresh*, a atualização automática da tela ao salvar um arquivo no `npm run dev`.
 
-```js
-export async function fetchJSON(url) {
-  let resposta
-  try {
-    resposta = await fetch(url)
-  } catch {
-    throw new ApiError('Não foi possível conectar.', 0)   // erro de rede
-  }
-  if (!resposta.ok) {
-    throw new ApiError(`A API respondeu com erro ${resposta.status}.`, resposta.status)  // erro HTTP
-  }
-  return resposta.json()
+**Correção:** separei em dois arquivos:
+- `ThemeContext.jsx` passa a exportar só o contexto;
+- `ThemeProvider.jsx` exporta só o componente.
+
+A configuração do ESLint fica no `eslint.config.js` e usa:
+- `eslint-plugin-react-hooks`: confere as regras dos hooks e as dependências do `useEffect`;
+- `eslint-plugin-react-refresh`: confere o problema acima.
+
+## 🚀 Parte 2 – Deploy
+
+A aplicação está publicada na **Vercel**, ligada ao repositório do GitHub. A cada `git push` na branch `main`, a Vercel roda `npm run build` e publica a pasta `dist/` automaticamente.
+
+### SPA fallback (redirecionamento de rotas)
+
+Numa SPA existe **um único `index.html`**. Quem decide qual página mostrar é o React Router, no navegador. O problema: ao abrir um link direto como `/itens/T6_BAG`, ou ao apertar F5 nessa página, o **servidor** procura um arquivo `itens/T6_BAG` que não existe e responde **404**.
+
+A solução é dizer ao servidor: *"para qualquer endereço, entregue o `index.html`"*. Depois disso, o React Router lê a URL e mostra a página certa.
+
+**Vercel:** arquivo `vercel.json` na raiz:
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
 
-O `services/albion.js` usa essa função para montar a URL da API do Albion. Ele também converte os nomes em inglês (`sell_price_min`) para os nomes que as telas usam (`vendaMin`).
+**Netlify:** arquivo `public/_redirects`, que o Vite copia para dentro da `dist/`:
 
-Exemplo de URL gerada:
 ```
-https://west.albion-online-data.com/api/v2/stats/prices/T6_BAG.json?locations=Caerleon,Black Market&qualities=1
-```
-
-### Componentes base
-
-- **`Button`**:
-  - Tem 4 variantes (`primario`, `secundario`, `contorno`, `perigo`) e 3 tamanhos.
-  - Mostra um spinner quando `carregando`.
-  - Com a prop `para`, vira um `<Link>` do React Router com a mesma aparência. Assim não é preciso colocar `<button>` dentro de `<Link>`, o que seria HTML inválido.
-- **`Card`**: uma caixa com título, subtítulo e área de ações opcionais. Já vem pronta para o tema escuro.
-
-Ambos usam `clsx` para juntar as classes do Tailwind.
-
-### Hook personalizado `usePrecos`
-
-A página de detalhes carrega os preços **quando abre**, então usa um `useEffect`. Esse efeito fica dentro de um hook, para a página não precisar repetir o controle de carregando e erro:
-
-```jsx
-const { dados, carregando, erro, recarregar } = usePrecos([id], servidor)
+/*    /index.html    200
 ```
 
-Já a página **Consulta** busca quando o usuário clica no botão, então a chamada fica no `onSubmit`.
+O projeto tem os dois arquivos, então funciona nas duas plataformas. Arquivos que existem de verdade (JS, CSS, favicon) continuam sendo entregues normalmente: o redirecionamento só vale quando o arquivo não existe.
+
+### Testes em produção
+
+| Teste | Resultado |
+|---|---|
+| Navegar pelo menu (Início, Itens, Consulta, Sobre) sem recarregar a página | ⬜ |
+| Abrir `/itens/T6_BAG` direto na barra de endereço | ⬜ |
+| Apertar F5 em `/consulta` | ⬜ |
+| Abrir uma rota inexistente (`/xyz`) → página 404 do próprio app | ⬜ |
+| Consultar preços (API do Albion Data) | ⬜ |
+| Trocar de servidor (Américas / Europa / Ásia) | ⬜ |
+| Alternar tema e recarregar a página → tema continua salvo | ⬜ |
+| Celular (375px): menu ☰, cards em uma coluna, tabela com rolagem lateral | ⬜ |
+| Tablet e desktop: menu horizontal e grid de 2 e 3 colunas | ⬜ |
 
 ---
 
-## Parte 3 – Tema claro/escuro com Context API
+## 💭 Parte 4 – Reflexão
 
-1. **`contexts/ThemeContext.jsx`** cria o contexto e o `ThemeProvider`, que guarda o estado `tema`.
-2. Um `useEffect` no provider sincroniza o tema com duas coisas de fora do React:
-   - a classe `dark` no `<html>`, que ativa as classes `dark:` do Tailwind (`darkMode: 'class'` no `tailwind.config.js`);
-   - o `localStorage`, para lembrar a escolha.
-3. **`hooks/useTema.js`** é um atalho para ler o contexto. Ele avisa com um erro se for usado fora do provider.
-4. O botão ☀️/🌙 no Header chama `alternarTema()`. **Nenhuma prop** foi passada do App até ele.
+### Qual o impacto de ter um projeto documentado e publicado no seu portfólio como desenvolvedor?
 
-```jsx
-const { escuro, alternarTema } = useTema()
-```
+**Um projeto publicado prova que eu sei terminar.** Muita gente começa projetos. Poucos levam um até o fim: com tratamento de erros, funcionando no celular, sem 404 nos links e acessível por qualquer pessoa. Um link que abre e funciona mostra que conheço o **ciclo completo** do software:
 
-**Detalhes extras:**
-- Na primeira visita, o tema segue a preferência do sistema operacional (`prefers-color-scheme`).
-- Um pequeno script no `index.html` aplica o tema salvo **antes** do React carregar. Assim a tela não "pisca" branca para quem usa o tema escuro.
+1. planejar;
+2. desenvolver;
+3. testar;
+4. corrigir os avisos do build;
+5. configurar o servidor;
+6. publicar.
 
----
+É isso que acontece no trabalho de verdade.
 
-## Parte 4 – Reflexão
+**Ele reduz o esforço de quem avalia.** Um recrutador ou cliente não vai clonar o repositório, instalar dependências e rodar `npm run dev` para ver o que eu fiz. Com um link, ele vê o resultado em **dez segundos**, inclusive pelo celular. Se precisa de esforço para ver, na prática o projeto não é visto.
 
-### Qual a importância de separar `pages`, `components` e `services` em um projeto React que está crescendo?
+**A documentação mostra como eu penso.** O código mostra *o que* eu fiz. O README mostra *por que* fiz e *como* organizei:
+- qual problema o projeto resolve;
+- quais decisões tomei, como o SPA fallback e a separação do contexto;
+- quais erros encontrei e como resolvi.
 
-Cada pasta tem **uma responsabilidade**, e isso traz várias vantagens.
+Isso mostra comunicação e capacidade de explicar decisões técnicas, habilidades tão importantes quanto programar, principalmente em equipe.
 
-**1. Cada arquivo tem um motivo só para mudar.**
-- `components/`: **como as coisas aparecem**. O `Button` não sabe se está na página de itens ou na consulta.
-- `pages/`: **o que cada tela mostra**. A página junta componentes e dados para montar uma rota.
-- `services/`: **de onde vêm os dados**. Só ela sabe a URL da API e o formato da resposta.
+**Ele vira material de conversa.** Numa entrevista, em vez de responder perguntas genéricas, posso dizer: *"no meu projeto, a API pode responder 429 quando há muitas consultas; olha como tratei"*. Um projeto real e público dá exemplos concretos para tudo.
 
-Se a API do Albion mudar o endereço ou o nome de um campo, altero **um arquivo** (`albion.js`). As páginas nem percebem. Se eu quiser mudar a cor dos botões, altero só o `Button`, e todas as páginas atualizam.
+**Ele resolve um problema real.** Este painel não é uma lista de tarefas de tutorial. Ele nasceu de uma necessidade minha como jogador e consome dados reais. Projetos com propósito chamam mais atenção que exercícios repetidos.
 
-**2. Reutilização em vez de copiar e colar.**
-O `Card` aparece em todas as páginas. Se cada página tivesse sua própria caixa, uma correção, como o suporte ao tema escuro, precisaria ser repetida em dezenas de lugares, e alguma sempre ficaria esquecida.
+### Por que o README é a primeira coisa que um recrutador lê?
 
-**3. Fica fácil de achar as coisas.**
-Num projeto com 50 arquivos, a estrutura responde sozinha: um problema no menu está em `components/Header`, um erro na busca de preços está em `services/`. Isso ajuda muito quando outra pessoa entra no projeto, ou quando eu volto a ele depois de meses.
+**Porque é a primeira coisa que aparece.** Ao abrir qualquer repositório no GitHub, o README é exibido logo abaixo da lista de arquivos. Ele funciona como a **capa** e o **cartão de visitas** do projeto.
 
-**4. Fica mais fácil testar e trocar peças.**
-Como a lógica de API está separada da tela, dá para testar o `buscarPrecos` sem abrir o navegador. Também dá para trocar a API inteira por outra sem mexer no visual.
+**Porque o tempo do recrutador é curto.** Um recrutador avalia muitos candidatos e gasta poucos minutos em cada repositório. Em segundos, o README precisa responder:
+- o que é o projeto;
+- se ele funciona (link do deploy e prints);
+- quais tecnologias usa (para cruzar com a vaga);
+- se a pessoa sabe se comunicar.
 
-**5. O projeto cresce sem virar bagunça.**
-Em um exercício pequeno, tudo no `App.jsx` funciona. Num projeto real, esse arquivo chegaria a milhares de linhas misturando HTML, estilos, `fetch` e regras de negócio. Separar desde o começo custa pouco e evita uma reorganização dolorosa depois.
+**Porque nem todo recrutador lê código.** Muitos recrutadores não são programadores. O README é a parte do projeto que **qualquer pessoa entende**. Prints e um link funcionando falam mais do que mil linhas de JavaScript.
 
-Resumindo: **componentes cuidam da aparência, páginas montam as telas, services buscam os dados, contexts guardam o estado global e hooks guardam a lógica reutilizável.**
+**Porque ele revela cuidado.** Um repositório sem README, ou só com o texto padrão do Vite, passa a impressão de projeto abandonado ou incompleto. Um README organizado, com instruções que funcionam, mostra profissionalismo: o mesmo cuidado que a pessoa teria com a documentação de um sistema da empresa.
+
+**Em resumo:** o código prova que eu sei programar. O deploy prova que eu sei entregar. O README faz alguém **querer olhar** os dois.
 
 ---
 
-## Tecnologias
+## 🗺️ Próximos passos
 
-- [React](https://react.dev/) + [Vite](https://vite.dev/)
-- [React Router](https://reactrouter.com/)
-- [Tailwind CSS](https://v3.tailwindcss.com/) (com `darkMode: 'class'`)
-- [clsx](https://github.com/lukeed/clsx)
-- [Albion Online Data Project](https://www.albion-online-data.com/) (API de preços)
+- [ ] Receitas de craft com a quantidade de materiais de cada item
+- [ ] Cálculo de lucro real: preço no Black Market − materiais − taxas do mercado
+- [ ] Ranking dos itens mais lucrativos do momento
+- [ ] Painel de acompanhamento da meta diária de prata
 
-*Projeto de fã, sem ligação com a Sandbox Interactive. Os preços são enviados por jogadores e podem estar desatualizados.*
+## 👤 Autor
+
+**Weslley Cutrim**, estudante de Análise e Desenvolvimento de Sistemas.
+[GitHub](https://github.com/weslleycga)
+
+---
+
+<sub>Projeto de fã, sem ligação com a Sandbox Interactive. Os preços são enviados por jogadores através do Albion Online Data Project e podem estar desatualizados.</sub>
